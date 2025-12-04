@@ -6,9 +6,6 @@ use App\Entity\Enterprise;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
-/**
- * @extends ServiceEntityRepository<Enterprise>
- */
 class EnterpriseRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
@@ -16,13 +13,24 @@ class EnterpriseRepository extends ServiceEntityRepository
         parent::__construct($registry, Enterprise::class);
     }
 
+    public function findByEnterpriseNumber(string $num): ?Enterprise
+    {
+        return $this->createQueryBuilder('e')
+            ->leftJoin('e.denominations', 'd')
+            ->addSelect('d')
+            ->where('e.EnterpriseNumber = :num')
+            ->setParameter('num', $num)
+            ->getQuery()
+            ->getOneOrNullResult();
+    }
+
     public function search(string $term): array
     {
-        return $this->createQueryBuilder('enterprise')
-            ->leftJoin('enterprise.denominations', 'denomination')
-            ->addSelect('denomination')
-            ->where('enterprise.EnterpriseNumber LIKE :term')
-            ->orWhere('denomination.Denomination LIKE :term')
+        return $this->createQueryBuilder('e')
+            ->leftJoin('e.denominations', 'd')
+            ->addSelect('d')
+            ->where('e.EnterpriseNumber LIKE :term')
+            ->orWhere('d.Denomination LIKE :term')
             ->setParameter('term', "%$term%")
             ->getQuery()
             ->getResult();

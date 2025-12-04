@@ -8,10 +8,9 @@
     <div style="display:flex; justify-content:space-between; align-items:center;">
         <h2>Résultats pour "{{ query }}"</h2>
 
-        <a href="{{ path('app_enterprise_add') }}" 
-           style="padding:10px 15px; background:#2c7; color:white; text-decoration:none; border-radius:5px;">
+        {# <a href="{{ path('app_enterprise_add') }}" >
             + Ajouter une entreprise
-        </a>
+        </a> #}
     </div>
 
     {% if results is empty %}
@@ -30,9 +29,8 @@
 
             {% for row in results %}
             <tr>
-                <!-- CLICK = VOIR PAGE ENTREPRISE -->
                 <td>
-                    <a href="{{ path('app_enterprise_view', { id: row.id }) }}">
+                    <a href="{{ path('app_enterprise_view', { num: row.EnterpriseNumber }) }}">
                         {{ row.EnterpriseNumber }}
                     </a>
                 </td>
@@ -48,16 +46,15 @@
                 </td>
 
                 <td>
-                    <a href="{{ path('app_enterprise_edit', { id: row.id }) }}">Modifier</a>
+                    {# <a href="{{ path('app_enterprise_edit', { id: row.id }) }}">Modifier</a> #}
                 </td>
 
                 <td>
-                    <a href="{{ path('app_enterprise_delete', { id: row.id }) }}"
+                    <a href="{{ path('app_enterprise_delete', { num: row.EnterpriseNumber }) }}"
                        onclick="return confirm('Supprimer cette entreprise ?')">
                         Supprimer
                     </a>
-                </td>
-            </tr>
+                </td></tr>
             {% endfor %}
         </table>
     {% endif %}

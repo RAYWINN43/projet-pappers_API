@@ -30,7 +30,7 @@ class Denomination
 
     #[ORM\ManyToOne(targetEntity: Enterprise::class, inversedBy: "denominations")]
     #[ORM\JoinColumn(name: "EntityNumber", referencedColumnName: "EnterpriseNumber", nullable: false)]
-    private ?Enterprise $enterprise = null; // ⚠️ PAS DE Groups pour éviter les boucles
+    private ?Enterprise $enterprise = null;
 
     public function getId(): ?int { return $this->id; }
 
