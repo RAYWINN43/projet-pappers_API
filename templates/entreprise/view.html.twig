@@ -1,0 +1,33 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Entreprise {{ enterprise.EnterpriseNumber }}{% endblock %}
+
+{% block body %}
+<div style="max-width:800px; margin:auto; padding-top:20px;">
+
+    <h1>Entreprise {{ enterprise.EnterpriseNumber }}</h1>
+
+    <p>Status : {{ enterprise.Status }}</p>
+    <p>Forme juridique : {{ enterprise.JuridicalForm }}</p>
+    <p>Date début : {{ enterprise.StartDate|date('d/m/Y') }}</p>
+
+    <h2>Dénominations</h2>
+    <ul>
+        {% for d in enterprise.denominations %}
+            <li>{{ d.Denomination }}</li>
+        {% endfor %}
+    </ul>
+
+    <a href="{{ path('app_enterprise_edit', { id: enterprise.id }) }}">Modifier</a>
+    <br>
+    <a href="{{ path('app_enterprise_delete', { id: enterprise.id }) }}"
+       onclick="return confirm('Supprimer cette entreprise ?');">
+       Supprimer
+    </a>
+
+    <hr>
+
+    <a href="{{ path('app_home') }}">Retour</a>
+
+</div>
+{% endblock %}
