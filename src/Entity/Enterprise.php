@@ -35,7 +35,7 @@ class Enterprise
     #[Groups(['search:read'])]
     private ?\DateTimeInterface $StartDate = null;
 
-    #[ORM\OneToMany(mappedBy: "enterprise", targetEntity: Denomination::class)]
+    #[ORM\OneToMany(mappedBy: "enterprise",targetEntity: Denomination::class,cascade: ["remove"],orphanRemoval: true)]
     #[Groups(['search:read'])]
     #[MaxDepth(1)]
     private Collection $denominations;

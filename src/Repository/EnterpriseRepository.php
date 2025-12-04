@@ -35,4 +35,14 @@ class EnterpriseRepository extends ServiceEntityRepository
             ->getQuery()
             ->getResult();
     }
+    public function findFirst10(): array
+    {
+        return $this->createQueryBuilder('e')
+            ->leftJoin('e.denominations', 'd')
+            ->addSelect('d')
+            ->groupBy('e.id')
+            ->setMaxResults(5)
+            ->getQuery()
+            ->getResult();
+    }
 }
