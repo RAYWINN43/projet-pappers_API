@@ -1,0 +1,39 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Résultats{% endblock %}
+
+{% block body %}
+<div style="max-width:900px; margin:auto; padding-top:30px;">
+
+    <h2>Résultats pour "{{ query }}"</h2>
+
+    {% if results is empty %}
+        <p>Aucun résultat trouvé.</p>
+    {% else %}
+        <table width="100%" border="1" cellpadding="8" cellspacing="0" style="margin-top:20px;">
+            <tr>
+                <th>Numéro BCE</th>
+                <th>Status</th>
+                <th>Forme juridique</th>
+                <th>Date début</th>
+                <th>Denomination</th>
+            </tr>
+
+            {% for row in results %}
+            <tr>
+                <td>{{ row.EnterpriseNumber }}</td>
+                <td>{{ row.Status }}</td>
+                <td>{{ row.JuridicalForm }}</td>
+                <td>{{ row.StartDate }}</td>
+                <td>{{ row.Denomination }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+    {% endif %}
+
+    <div style="margin-top:30px;">
+        <a href="{{ path('app_home') }}">Nouvelle recherche ici</a>
+    </div>
+
+</div>
+{% endblock %}
