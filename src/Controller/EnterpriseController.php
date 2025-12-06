@@ -78,4 +78,64 @@ class EnterpriseController extends AbstractController
 
         return $this->redirectToRoute('app_home');
     }
+
+    #[Route('/{num}/edit', name: 'app_enterprise_edit')]
+    public function edit(string $num, Request $req, EnterpriseRepository $repo, EntityManagerInterface $em): Response
+    {
+        $e = $repo->findByEnterpriseNumber($num);
+
+        if (!$e) {
+            return new Response("Entreprise introuvable", 404);
+        }
+
+        $denoms = $repo->getDenominations($num);
+        $e->setDenominations($denoms);
+
+        $d = null;
+        if (!empty($denoms)) {
+            $d = $em->getConnection()->executeQuery("
+                SELECT * FROM pappers_denomination 
+                WHERE EntityNumber = :n 
+                LIMIT 1
+            ", ['n' => $num])->fetchAssociative();
+        }
+
+        if ($req->isMethod('POST')) {
+
+            $e->setStatus($req->request->get('Status'));
+            $e->setJuridicalForm($req->request->get('JuridicalForm'));
+
+            if ($req->request->get('StartDate')) {
+                $e->setStartDate(new \DateTime($req->request->get('StartDate')));
+            }
+
+            $em->flush();
+
+            if ($d) {
+                $em->getConnection()->executeQuery("
+                    UPDATE pappers_denomination
+                    SET Denomination = :denom,
+                        TypeOfDenomination = :type,
+                        Language = :lang
+                    WHERE id = :id
+                ", [
+                    'denom' => $req->request->get('Denomination'),
+                    'type'  => $req->request->get('TypeOfDenomination'),
+                    'lang'  => $req->request->get('Language'),
+                    'id'    => $d['id']
+                ]);
+            }
+
+            return $this->redirectToRoute('app_enterprise_view', [
+                'num' => $e->getEnterpriseNumber()
+            ]);
+        }
+
+        return $this->render('enterprise/edit.html.twig', [
+            'enterprise' => $e,
+            'denomination' => $d
+        ]);
+    }
+
+
 }

@@ -1,0 +1,51 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Modifier {{ enterprise.EnterpriseNumber }}{% endblock %}
+
+{% block body %}
+<div style="max-width:700px; margin:auto; padding-top:20px;">
+
+    <h1>Modifier l'entreprise {{ enterprise.EnterpriseNumber }}</h1>
+
+    <form method="post">
+
+        <label>Status :</label>
+        <input type="text" name="Status" value="{{ enterprise.Status }}" class="form-control"><br>
+
+        <label>Forme juridique :</label>
+        <input type="text" name="JuridicalForm" value="{{ enterprise.JuridicalForm }}" class="form-control"><br>
+
+        <label>Date début :</label>
+        <input type="date" name="StartDate"
+               value="{{ enterprise.StartDate ? enterprise.StartDate|date('Y-m-d') : '' }}"
+               class="form-control"><br>
+
+        <h3>Dénomination</h3>
+
+        <label>Dénomination :</label>
+        <input type="text" name="Denomination"
+               value="{{ denomination.Denomination ?? '' }}"
+               class="form-control"><br>
+
+        <label>Type :</label>
+        <input type="text" name="TypeOfDenomination"
+               value="{{ denomination.TypeOfDenomination ?? '' }}"
+               class="form-control"><br>
+
+        <label>Langue :</label>
+        <input type="text" name="Language"
+               value="{{ denomination.Language ?? '' }}"
+               class="form-control"><br>
+
+        <button class="btn btn-primary" style="margin-top:20px;">
+            Enregistrer les modifications
+        </button>
+
+    </form>
+
+    <br>
+    <a href="{{ path('app_enterprise_view', { num: enterprise.EnterpriseNumber }) }}">
+        Retour
+    </a>
+</div>
+{% endblock %}
