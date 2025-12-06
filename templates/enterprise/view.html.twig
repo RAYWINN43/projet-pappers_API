@@ -1,10 +1,13 @@
 {% extends 'base.html.twig' %}
-{% block body %}
-<h1>{{ enterprise.enterpriseNumber }}</h1>
 
-<p>{{ enterprise.status }}</p>
-<p>{{ enterprise.juridicalForm }}</p>
-<p>{{ enterprise.startDate ? enterprise.startDate|date('d/m/Y') : '' }}</p>
+{% block title %}Entreprise {{ enterprise.enterpriseNumber }}{% endblock %}
+
+{% block body %}
+<h1>Entreprise {{ enterprise.enterpriseNumber }}</h1>
+
+<p>Status : {{ enterprise.status }}</p>
+<p>Forme juridique : {{ enterprise.juridicalForm }}</p>
+<p>Date de début : {{ enterprise.startDate ? enterprise.startDate|date('d/m/Y') : '' }}</p>
 
 <h2>Dénominations</h2>
 <ul>
@@ -20,9 +23,11 @@
     {% endfor %}
 </ul>
 
-<a href="{{ path('enterprise_edit', {num: enterprise.enterpriseNumber}) }}">Modifier</a>
+<a href="{{ path('enterprise_edit', { num: enterprise.enterpriseNumber }) }}">Modifier</a>
 
-<form method="post" action="{{ path('enterprise_delete', {num: enterprise.enterpriseNumber}) }}">
-    <button>Supprimer</button>
+<form method="post" action="{{ path('enterprise_delete', { num: enterprise.enterpriseNumber }) }}" style="margin-top: 20px;">
+    <button type="submit">Supprimer</button>
 </form>
+
+<a href="{{ path('home') }}" class="back-link">Retour accueil</a>
 {% endblock %}

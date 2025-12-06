@@ -1,10 +1,27 @@
 {% extends 'base.html.twig' %}
+
+{% block title %}Accueil{% endblock %}
+
 {% block body %}
-<form action="{{ path('enterprise_search') }}" method="get">
-    <input name="q" placeholder="Recherche">
+<h1>Accueil</h1>
+
+<form method="get" action="{{ path('enterprise_search') }}">
+    <input type="text" name="q" placeholder="Recherche par nom ou numéro">
+    <button type="submit">Rechercher</button>
 </form>
 
+<h2>Entreprises</h2>
+
 <table>
+    <thead>
+    <tr>
+        <th>Numéro</th>
+        <th>Status</th>
+        <th>Forme juridique</th>
+        <th>Dénomination</th>
+    </tr>
+    </thead>
+    <tbody>
     {% for e in enterprises %}
         {% set d = e.denominations[0] ?? null %}
         <tr>
@@ -14,7 +31,8 @@
             <td>{{ d ? d.denomination : '' }}</td>
         </tr>
     {% endfor %}
+    </tbody>
 </table>
 
-<a href="{{ path('enterprise_add') }}">Ajouter</a>
+<a href="{{ path('enterprise_add') }}">Ajouter une entreprise</a>
 {% endblock %}
