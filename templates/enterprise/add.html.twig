@@ -1,0 +1,42 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Ajouter une entreprise{% endblock %}
+
+{% block body %}
+<div style="max-width:700px; margin:auto; padding-top:30px;">
+
+    <h1>Ajouter une entreprise</h1>
+
+    <form method="post">
+
+        <label>Numéro BCE :</label>
+        <input type="text" name="EnterpriseNumber" required class="form-control"><br>
+
+        <label>Status :</label>
+        <input type="text" name="Status" class="form-control"><br>
+
+        <label>Forme juridique :</label>
+        <input type="text" name="JuridicalForm" class="form-control"><br>
+
+        <label>Date de début :</label>
+        <input type="date" name="StartDate" class="form-control"><br>
+
+        <h3>Dénomination</h3>
+
+        <label>Dénomination :</label>
+        <input type="text" name="Denomination" class="form-control"><br>
+
+        <label>Type :</label>
+        <input type="text" name="TypeOfDenomination" class="form-control"><br>
+
+        <label>Langue :</label>
+        <input type="text" name="Language" class="form-control"><br>
+
+        <button class="btn btn-primary" style="margin-top:15px;">
+            Ajouter
+        </button>
+
+    </form>
+
+</div>
+{% endblock %}

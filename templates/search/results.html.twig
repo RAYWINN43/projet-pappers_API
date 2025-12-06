@@ -5,63 +5,35 @@
 {% block body %}
 <div style="max-width:900px; margin:auto; padding-top:30px;">
 
-    <div style="display:flex; justify-content:space-between; align-items:center;">
-        <h2>Résultats pour "{{ query }}"</h2>
-
-        {# <a href="{{ path('app_enterprise_add') }}" >
-            + Ajouter une entreprise
-        </a> #}
-    </div>
+    <h2>Résultats pour "{{ query }}"</h2>
 
     {% if results is empty %}
         <p>Aucun résultat trouvé.</p>
     {% else %}
         <table width="100%" border="1" cellpadding="8" cellspacing="0" style="margin-top:20px;">
             <tr>
-                <th>Numéro BCE</th>
+                <th>BCE</th>
                 <th>Status</th>
-                <th>Forme juridique</th>
-                <th>Date début</th>
+                <th>Forme</th>
                 <th>Dénominations</th>
-                <th>Modifier</th>
-                <th>Supprimer</th>
             </tr>
 
-            {% for row in results %}
+            {% for r in results %}
             <tr>
+                <td><a href="{{ path('app_enterprise_view', { num: r.EnterpriseNumber }) }}">{{ r.EnterpriseNumber }}</a></td>
+                <td>{{ r.Status }}</td>
+                <td>{{ r.JuridicalForm }}</td>
                 <td>
-                    <a href="{{ path('app_enterprise_view', { num: row.EnterpriseNumber }) }}">
-                        {{ row.EnterpriseNumber }}
-                    </a>
+                    {% for d in e.denominations %}
+                        {{ d.Denomination }}<br>
+                    {% else %}
                 </td>
-
-                <td>{{ row.Status }}</td>
-                <td>{{ row.JuridicalForm }}</td>
-                <td>{{ row.StartDate|date('d/m/Y') }}</td>
-
-                <td>
-                    {% for d in row.denominations %}
-                        {{ d.Denomination }} <br>
-                    {% endfor %}
-                </td>
-
-                <td>
-                    {# <a href="{{ path('app_enterprise_edit', { id: row.id }) }}">Modifier</a> #}
-                </td>
-
-                <td>
-                    <a href="{{ path('app_enterprise_delete', { num: row.EnterpriseNumber }) }}"
-                       onclick="return confirm('Supprimer cette entreprise ?')">
-                        Supprimer
-                    </a>
-                </td></tr>
+            </tr>
             {% endfor %}
         </table>
     {% endif %}
 
-    <div style="margin-top:30px;">
-        <a href="{{ path('app_home') }}">Nouvelle recherche</a>
-    </div>
-
+    <hr>
+    <a href="{{ path('app_home') }}">Retour</a>
 </div>
 {% endblock %}

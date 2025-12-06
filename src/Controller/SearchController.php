@@ -10,16 +10,14 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class SearchController extends AbstractController
 {
-    #[Route('/search', name: 'app_search', methods: ['GET'])]
-    public function search(Request $request, EnterpriseRepository $enterpriseRepository): Response
+    #[Route('/search', name: 'app_search')]
+    public function search(Request $req, EnterpriseRepository $repo): Response
     {
-        $query = $request->query->get('q', '');
-
-        $results = $enterpriseRepository->search($query);
+        $q = $req->query->get('q');
 
         return $this->render('search/results.html.twig', [
-            'query' => $query,
-            'results' => $results
+            'query' => $q,
+            'results' => $repo->search($q)
         ]);
     }
 }

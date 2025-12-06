@@ -12,20 +12,4 @@ class DenominationRepository extends ServiceEntityRepository
     {
         parent::__construct($registry, Denomination::class);
     }
-
-    /**
-     * Recherche dans les dénominations et les entreprises liées
-     */
-    public function search(string $term): array
-    {
-        return $this->createQueryBuilder('denomination')
-            ->leftJoin('denomination.enterprise', 'enterprise')
-            ->addSelect('enterprise')
-            ->where('denomination.Denomination LIKE :term')
-            ->orWhere('denomination.entityNumberRaw LIKE :term')
-            ->orWhere('enterprise.EnterpriseNumber LIKE :term')
-            ->setParameter('term', "%$term%")
-            ->getQuery()
-            ->getResult();
-    }
 }

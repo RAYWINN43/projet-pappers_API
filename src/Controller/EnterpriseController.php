@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\Enterprise;
+use App\Entity\Denomination;
 use App\Repository\EnterpriseRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -10,59 +11,68 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
+
 #[Route('/enterprise')]
 class EnterpriseController extends AbstractController
 {
-    #[Route('/{num}', name: 'app_enterprise_view', methods: ['GET'])]
-    public function view(string $num, EnterpriseRepository $repo): Response
+    #[Route('/enterprise/add', name: 'app_enterprise_add')]
+    public function add(Request $req, EntityManagerInterface $em): Response
     {
-        $enterprise = $repo->findByEnterpriseNumber($num);
+        if ($req->isMethod('POST')) {
 
-        if (!$enterprise) {
-            throw $this->createNotFoundException("Entreprise introuvable");
-        }
+            $e = new Enterprise();
+            $e->setEnterpriseNumber($req->request->get('EnterpriseNumber'));
+            $e->setStatus($req->request->get('Status'));
+            $e->setJuridicalForm($req->request->get('JuridicalForm'));
 
-        return $this->render('enterprise/view.html.twig', [
-            'enterprise' => $enterprise
-        ]);
-    }
-
-    #[Route('/{num}/edit', name: 'app_enterprise_edit', methods: ['GET', 'POST'])]
-    public function edit(string $num, Request $request, EnterpriseRepository $repo, EntityManagerInterface $em): Response
-    {
-        $enterprise = $repo->findByEnterpriseNumber($num);
-
-        if (!$enterprise) {
-            throw $this->createNotFoundException("Entreprise introuvable");
-        }
-
-        if ($request->isMethod('POST')) {
-            $enterprise->setStatus($request->request->get('Status'));
-            $enterprise->setJuridicalForm($request->request->get('JuridicalForm'));
-
-            if ($request->request->get('StartDate')) {
-                $enterprise->setStartDate(new \DateTime($request->request->get('StartDate')));
+            if ($req->request->get('StartDate')) {
+                $e->setStartDate(new \DateTime($req->request->get('StartDate')));
             }
 
+            $d = new Denomination();
+            $d->setDenomination($req->request->get('Denomination'));
+            $d->setTypeOfDenomination($req->request->get('TypeOfDenomination'));
+            $d->setLanguage($req->request->get('Language'));
+
+            $em->persist($e);
+            $em->persist($d);
             $em->flush();
 
             return $this->redirectToRoute('app_enterprise_view', [
-                'num' => $enterprise->getEnterpriseNumber()
+                'num' => $e->getEnterpriseNumber()
             ]);
         }
 
-        return $this->render('enterprise/edit.html.twig', [
-            'enterprise' => $enterprise
+        return $this->render('enterprise/add.html.twig');
+    }
+
+
+    #[Route('/{num}', name: 'app_enterprise_view')]
+    public function view(string $num, EnterpriseRepository $repo): Response
+    {
+        $e = $repo->findByEnterpriseNumber($num);
+
+        if (!$e) {
+            return new Response("Entreprise introuvable", 404);
+        }
+
+        $e->setDenominations($repo->getDenominations($num));
+
+        return $this->render('enterprise/view.html.twig', [
+            'enterprise' => $e
         ]);
     }
 
-    #[Route('/{num}/delete', name: 'app_enterprise_delete', methods: ['GET'])]
+    #[Route('/{num}/delete', name: 'app_enterprise_delete')]
     public function delete(string $num, EnterpriseRepository $repo, EntityManagerInterface $em): Response
     {
-        $enterprise = $repo->findByEnterpriseNumber($num);
+        $e = $repo->findByEnterpriseNumber($num);
 
-        if ($enterprise) {
-            $em->remove($enterprise);
+        if ($e) {
+            $conn = $em->getConnection();
+            $conn->executeStatement("DELETE FROM pappers_denomination WHERE EntityNumber = :num", ['num' => $num]);
+
+            $em->remove($e);
             $em->flush();
         }
 

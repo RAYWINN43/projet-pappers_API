@@ -8,50 +8,37 @@
     <h1>Recherche d'entreprise</h1>
 
     <form action="{{ path('app_search') }}" method="get" style="margin-top:20px;">
-        <input 
-            type="text" 
-            name="q" 
-            placeholder="Nom ou Numéro BCE"
-            required
-            style="width:100%; padding:12px; font-size:18px;"
-        >
-        <button style="margin-top:15px; padding:12px 20px; width:100%; font-size:18px;">
-            Rechercher
-        </button>
+        <input type="text" name="q" placeholder="Nom ou Numéro BCE" required style="width:100%; padding:12px; font-size:18px;">
+        <button style="margin-top:15px; padding:12px 20px; width:100%; font-size:18px;">Rechercher</button>
     </form>
+
+    <a href="{{ path('app_enterprise_add') }}" style="display:block; margin-top:15px;">+ Ajouter une entreprise</a>
 
     <hr style="margin:30px 0;">
 
     <h2>5 premières entreprises</h2>
 
-    <table width="100%" border="1" cellpadding="8" cellspacing="0" style="margin-top:15px;">
+    <table width="100%" border="1" cellpadding="8" cellspacing="0">
         <tr>
             <th>Numéro BCE</th>
             <th>Status</th>
             <th>Forme juridique</th>
-            <th>Dénomination</th>
+            <th>Dénominations</th>
         </tr>
 
         {% for e in enterprises %}
         <tr>
             <td>
-                <a href="{{ path('app_enterprise_view', { num: e.EnterpriseNumber }) }}">
-                    {{ e.EnterpriseNumber }}
-                </a>
+                <a href="{{ path('app_enterprise_view', { num: e.EnterpriseNumber }) }}">{{ e.EnterpriseNumber }}</a>
             </td>
-
-            <td>{{ e.Status }}</td>
-
-            <td>{{ e.JuridicalForm }}</td>
-
+            <td>{{ e.Status ?? '—' }}</td>
+            <td>{{ e.JuridicalForm ?? '—' }}</td>
             <td>
-                {% if e.denominations is empty %}
-                    Aucune
+                {% for d in e.denominations %}
+                    {{ d.Denomination }}<br>
                 {% else %}
-                    {% for d in e.denominations %}
-                        {{ d.Denomination }}<br>
-                    {% endfor %}
-                {% endif %}
+                    Aucune
+                {% endfor %}
             </td>
         </tr>
         {% endfor %}
