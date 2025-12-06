@@ -1,51 +1,45 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Modifier {{ enterprise.EnterpriseNumber }}{% endblock %}
+{% block title %}Modifier {{ enterprise.enterpriseNumber }}{% endblock %}
 
 {% block body %}
-<div style="max-width:700px; margin:auto; padding-top:20px;">
+<h1>Modifier {{ enterprise.enterpriseNumber }}</h1>
 
-    <h1>Modifier l'entreprise {{ enterprise.EnterpriseNumber }}</h1>
+<form method="post">
+    <div>
+        <label>Status</label>
+        <input type="text" name="status" value="{{ enterprise.status }}">
+    </div>
 
-    <form method="post">
+    <div>
+        <label>Forme juridique</label>
+        <input type="text" name="juridicalForm" value="{{ enterprise.juridicalForm }}">
+    </div>
 
-        <label>Status :</label>
-        <input type="text" name="Status" value="{{ enterprise.Status }}" class="form-control"><br>
+    <div>
+        <label>Date de début</label>
+        <input type="date" name="startDate" value="{{ enterprise.startDate ? enterprise.startDate|date('Y-m-d') : '' }}">
+    </div>
 
-        <label>Forme juridique :</label>
-        <input type="text" name="JuridicalForm" value="{{ enterprise.JuridicalForm }}" class="form-control"><br>
+    <h2>Dénomination</h2>
 
-        <label>Date début :</label>
-        <input type="date" name="StartDate"
-               value="{{ enterprise.StartDate ? enterprise.StartDate|date('Y-m-d') : '' }}"
-               class="form-control"><br>
+    <div>
+        <label>Nom de la dénomination</label>
+        <input type="text" name="denomination" value="{{ mainDenom ? mainDenom.denomination : '' }}">
+    </div>
 
-        <h3>Dénomination</h3>
+    <div>
+        <label>Type</label>
+        <input type="text" name="denominationType" value="{{ mainDenom ? mainDenom.typeOfDenomination : '' }}">
+    </div>
 
-        <label>Dénomination :</label>
-        <input type="text" name="Denomination"
-               value="{{ denomination.Denomination ?? '' }}"
-               class="form-control"><br>
+    <div>
+        <label>Langue</label>
+        <input type="text" name="denominationLanguage" value="{{ mainDenom ? mainDenom.language : '' }}">
+    </div>
 
-        <label>Type :</label>
-        <input type="text" name="TypeOfDenomination"
-               value="{{ denomination.TypeOfDenomination ?? '' }}"
-               class="form-control"><br>
+    <button type="submit">Enregistrer</button>
+</form>
 
-        <label>Langue :</label>
-        <input type="text" name="Language"
-               value="{{ denomination.Language ?? '' }}"
-               class="form-control"><br>
-
-        <button class="btn btn-primary" style="margin-top:20px;">
-            Enregistrer les modifications
-        </button>
-
-    </form>
-
-    <br>
-    <a href="{{ path('app_enterprise_view', { num: enterprise.EnterpriseNumber }) }}">
-        Retour
-    </a>
-</div>
+<a href="{{ path('enterprise_view', { num: enterprise.enterpriseNumber }) }}">Retour</a>
 {% endblock %}

@@ -3,139 +3,134 @@
 namespace App\Controller;
 
 use App\Entity\Enterprise;
-use App\Entity\Denomination;
 use App\Repository\EnterpriseRepository;
+use App\Repository\DenominationRepository;
+use App\Repository\EstablishmentRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
+use App\Entity\Denomination;
 
-
-#[Route('/enterprise')]
 class EnterpriseController extends AbstractController
 {
-    #[Route('/enterprise/add', name: 'app_enterprise_add')]
-    public function add(Request $req, EntityManagerInterface $em): Response
+    #[Route('/', name: 'home')]
+    public function home(EnterpriseRepository $repo): Response
     {
-        if ($req->isMethod('POST')) {
+        return $this->render('home/index.html.twig', [
+            'enterprises' => $repo->findFirst(5)
+        ]);
+    }
 
+    #[Route('/search', name: 'enterprise_search')]
+    public function search(Request $r, EnterpriseRepository $repo): Response
+    {
+        $q = (string)$r->query->get('q', '');
+        $results = $q ? $repo->search($q) : [];
+        return $this->render('search/results.html.twig', [
+            'query' => $q,
+            'results' => $results
+        ]);
+    }
+
+    #[Route('/enterprise/add', name: 'enterprise_add')]
+    public function add(Request $r, EntityManagerInterface $em, DenominationRepository $dr): Response
+    {
+        if ($r->isMethod('POST')) {
+            $num = $r->request->get('enterpriseNumber');
             $e = new Enterprise();
-            $e->setEnterpriseNumber($req->request->get('EnterpriseNumber'));
-            $e->setStatus($req->request->get('Status'));
-            $e->setJuridicalForm($req->request->get('JuridicalForm'));
-
-            if ($req->request->get('StartDate')) {
-                $e->setStartDate(new \DateTime($req->request->get('StartDate')));
-            }
+            $e->setEnterpriseNumber($num);
+            $e->setStatus($r->request->get('status'));
+            $e->setJuridicalForm($r->request->get('juridicalForm'));
+            $sd = $r->request->get('startDate');
+            if ($sd) $e->setStartDate(new \DateTime($sd));
+            $em->persist($e);
+            $em->flush();
 
             $d = new Denomination();
-            $d->setDenomination($req->request->get('Denomination'));
-            $d->setTypeOfDenomination($req->request->get('TypeOfDenomination'));
-            $d->setLanguage($req->request->get('Language'));
-
-            $em->persist($e);
+            $d->setEntityNumber($num);
+            $d->setDenomination($r->request->get('denomination'));
+            $d->setTypeOfDenomination($r->request->get('denominationType'));
+            $d->setLanguage($r->request->get('denominationLanguage'));
             $em->persist($d);
             $em->flush();
 
-            return $this->redirectToRoute('app_enterprise_view', [
-                'num' => $e->getEnterpriseNumber()
-            ]);
+            return $this->redirectToRoute('enterprise_view', ['num' => $num]);
         }
 
         return $this->render('enterprise/add.html.twig');
     }
 
 
-    #[Route('/{num}', name: 'app_enterprise_view')]
+    #[Route('/enterprise/{num}', name: 'enterprise_view')]
     public function view(string $num, EnterpriseRepository $repo): Response
     {
-        $e = $repo->findByEnterpriseNumber($num);
-
-        if (!$e) {
-            return new Response("Entreprise introuvable", 404);
-        }
-
-        $e->setDenominations($repo->getDenominations($num));
-
+        $e = $repo->findOneWithDetails($num);
+        if (!$e) throw $this->createNotFoundException();
         return $this->render('enterprise/view.html.twig', [
             'enterprise' => $e
         ]);
     }
 
-    #[Route('/{num}/delete', name: 'app_enterprise_delete')]
-    public function delete(string $num, EnterpriseRepository $repo, EntityManagerInterface $em): Response
-    {
-        $e = $repo->findByEnterpriseNumber($num);
+   #[Route('/enterprise/{num}/edit', name: 'enterprise_edit')]
+    public function edit(
+        string $num,
+        Request $r,
+        EnterpriseRepository $repo,
+        DenominationRepository $dr,
+        EntityManagerInterface $em
+    ): Response {
+        $e = $repo->findOneWithDetails($num);
+        if (!$e) throw $this->createNotFoundException();
 
-        if ($e) {
-            $conn = $em->getConnection();
-            $conn->executeStatement("DELETE FROM pappers_denomination WHERE EntityNumber = :num", ['num' => $num]);
+        if ($r->isMethod('POST')) {
+            $m = $em->getRepository(Enterprise::class)->findOneBy(['enterpriseNumber' => $num]);
+            if (!$m) { $m = new Enterprise(); $m->setEnterpriseNumber($num); }
 
-            $em->remove($e);
-            $em->flush();
-        }
-
-        return $this->redirectToRoute('app_home');
-    }
-
-    #[Route('/{num}/edit', name: 'app_enterprise_edit')]
-    public function edit(string $num, Request $req, EnterpriseRepository $repo, EntityManagerInterface $em): Response
-    {
-        $e = $repo->findByEnterpriseNumber($num);
-
-        if (!$e) {
-            return new Response("Entreprise introuvable", 404);
-        }
-
-        $denoms = $repo->getDenominations($num);
-        $e->setDenominations($denoms);
-
-        $d = null;
-        if (!empty($denoms)) {
-            $d = $em->getConnection()->executeQuery("
-                SELECT * FROM pappers_denomination 
-                WHERE EntityNumber = :n 
-                LIMIT 1
-            ", ['n' => $num])->fetchAssociative();
-        }
-
-        if ($req->isMethod('POST')) {
-
-            $e->setStatus($req->request->get('Status'));
-            $e->setJuridicalForm($req->request->get('JuridicalForm'));
-
-            if ($req->request->get('StartDate')) {
-                $e->setStartDate(new \DateTime($req->request->get('StartDate')));
-            }
-
+            $m->setStatus($r->request->get('status'));
+            $m->setJuridicalForm($r->request->get('juridicalForm'));
+            $sd = $r->request->get('startDate');
+            if ($sd) $m->setStartDate(new \DateTime($sd));
+            $em->persist($m);
             $em->flush();
 
-            if ($d) {
-                $em->getConnection()->executeQuery("
-                    UPDATE pappers_denomination
-                    SET Denomination = :denom,
-                        TypeOfDenomination = :type,
-                        Language = :lang
-                    WHERE id = :id
-                ", [
-                    'denom' => $req->request->get('Denomination'),
-                    'type'  => $req->request->get('TypeOfDenomination'),
-                    'lang'  => $req->request->get('Language'),
-                    'id'    => $d['id']
-                ]);
-            }
+            $d = $dr->findOneBy(['entityNumber' => $num]);
+            if (!$d) { $d = new Denomination(); $d->setEntityNumber($num); }
 
-            return $this->redirectToRoute('app_enterprise_view', [
-                'num' => $e->getEnterpriseNumber()
-            ]);
+            $d->setDenomination($r->request->get('denomination'));
+            $d->setTypeOfDenomination($r->request->get('denominationType'));
+            $d->setLanguage($r->request->get('denominationLanguage'));
+            $em->persist($d);
+            $em->flush();
+
+            return $this->redirectToRoute('enterprise_view', ['num' => $num]);
         }
+
+        $mainDenom = $e->getDenominations()[0] ?? null;
 
         return $this->render('enterprise/edit.html.twig', [
             'enterprise' => $e,
-            'denomination' => $d
+            'mainDenom' => $mainDenom
         ]);
     }
 
 
+    #[Route('/enterprise/{num}/delete', name: 'enterprise_delete', methods: ['POST'])]
+    public function delete(string $num, DenominationRepository $dr, EstablishmentRepository $er, EntityManagerInterface $em): Response
+    {
+        $dr->deleteAllForEnterprise($num);
+        $er->deleteAllForEnterprise($num);
+        $m = $em->getRepository(Enterprise::class)->findOneBy(['enterpriseNumber' => $num]);
+        if ($m) $em->remove($m);
+        $em->flush();
+        return $this->redirectToRoute('home');
+    }
+
+    #[Route('/establishment/{id}/delete', name: 'establishment_delete', methods: ['POST'])]
+    public function delEst(int $id, EstablishmentRepository $repo): Response
+    {
+        $repo->deleteOne($id);
+        return $this->redirectToRoute('home');
+    }
 }

@@ -1,39 +1,18 @@
 {% extends 'base.html.twig' %}
-
-{% block title %}Résultats{% endblock %}
-
 {% block body %}
-<div style="max-width:900px; margin:auto; padding-top:30px;">
+<form action="{{ path('enterprise_search') }}" method="get">
+    <input name="q" value="{{ query }}">
+</form>
 
-    <h2>Résultats pour "{{ query }}"</h2>
-
-    {% if results is empty %}
-        <p>Aucun résultat trouvé.</p>
-    {% else %}
-        <table width="100%" border="1" cellpadding="8" cellspacing="0" style="margin-top:20px;">
-            <tr>
-                <th>BCE</th>
-                <th>Status</th>
-                <th>Forme</th>
-                <th>Dénominations</th>
-            </tr>
-
-            {% for r in results %}
-            <tr>
-                <td><a href="{{ path('app_enterprise_view', { num: r.EnterpriseNumber }) }}">{{ r.EnterpriseNumber }}</a></td>
-                <td>{{ r.Status }}</td>
-                <td>{{ r.JuridicalForm }}</td>
-                <td>
-                    {% for d in e.denominations %}
-                        {{ d.Denomination }}<br>
-                    {% else %}
-                </td>
-            </tr>
-            {% endfor %}
-        </table>
-    {% endif %}
-
-    <hr>
-    <a href="{{ path('app_home') }}">Retour</a>
-</div>
+<table>
+    {% for e in results %}
+        {% set d = e.denominations[0] ?? null %}
+        <tr>
+            <td><a href="{{ path('enterprise_view', {num: e.enterpriseNumber}) }}">{{ e.enterpriseNumber }}</a></td>
+            <td>{{ e.status }}</td>
+            <td>{{ e.juridicalForm }}</td>
+            <td>{{ d ? d.denomination : '' }}</td>
+        </tr>
+    {% endfor %}
+</table>
 {% endblock %}

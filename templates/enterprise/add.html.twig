@@ -3,40 +3,48 @@
 {% block title %}Ajouter une entreprise{% endblock %}
 
 {% block body %}
-<div style="max-width:700px; margin:auto; padding-top:30px;">
+<h1>Ajouter une entreprise</h1>
 
-    <h1>Ajouter une entreprise</h1>
+<form method="post">
+    <div>
+        <label>Numéro BCE</label>
+        <input type="text" name="enterpriseNumber" required>
+    </div>
 
-    <form method="post">
+    <div>
+        <label>Status</label>
+        <input type="text" name="status">
+    </div>
 
-        <label>Numéro BCE :</label>
-        <input type="text" name="EnterpriseNumber" required class="form-control"><br>
+    <div>
+        <label>Forme juridique</label>
+        <input type="text" name="juridicalForm">
+    </div>
 
-        <label>Status :</label>
-        <input type="text" name="Status" class="form-control"><br>
+    <div>
+        <label>Date de début</label>
+        <input type="date" name="startDate">
+    </div>
 
-        <label>Forme juridique :</label>
-        <input type="text" name="JuridicalForm" class="form-control"><br>
+    <h2>Dénomination</h2>
 
-        <label>Date de début :</label>
-        <input type="date" name="StartDate" class="form-control"><br>
+    <div>
+        <label>Nom de la dénomination</label>
+        <input type="text" name="denomination">
+    </div>
 
-        <h3>Dénomination</h3>
+    <div>
+        <label>Type</label>
+        <input type="text" name="denominationType">
+    </div>
 
-        <label>Dénomination :</label>
-        <input type="text" name="Denomination" class="form-control"><br>
+    <div>
+        <label>Langue</label>
+        <input type="text" name="denominationLanguage">
+    </div>
 
-        <label>Type :</label>
-        <input type="text" name="TypeOfDenomination" class="form-control"><br>
+    <button type="submit">Enregistrer</button>
+</form>
 
-        <label>Langue :</label>
-        <input type="text" name="Language" class="form-control"><br>
-
-        <button class="btn btn-primary" style="margin-top:15px;">
-            Ajouter
-        </button>
-
-    </form>
-
-</div>
+<a href="{{ path('home') }}">Retour</a>
 {% endblock %}

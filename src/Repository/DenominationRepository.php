@@ -12,4 +12,14 @@ class DenominationRepository extends ServiceEntityRepository
     {
         parent::__construct($registry, Denomination::class);
     }
+
+    public function deleteAllForEnterprise(string $num): void
+    {
+        $this->createQueryBuilder('d')
+            ->delete()
+            ->where('d.entityNumber = :n')
+            ->setParameter('n', $num)
+            ->getQuery()
+            ->execute();
+    }
 }

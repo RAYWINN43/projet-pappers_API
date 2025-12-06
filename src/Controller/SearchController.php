@@ -13,11 +13,17 @@ class SearchController extends AbstractController
     #[Route('/search', name: 'app_search')]
     public function search(Request $req, EnterpriseRepository $repo): Response
     {
-        $q = $req->query->get('q');
+        $term = trim($req->query->get('q', ''));
+
+        if ($term === '') {
+            return $this->redirectToRoute('app_home');
+        }
+
+        $enterprises = $repo->search($term);
 
         return $this->render('search/results.html.twig', [
-            'query' => $q,
-            'results' => $repo->search($q)
+            'query'       => $term,
+            'enterprises' => $enterprises,
         ]);
     }
 }
